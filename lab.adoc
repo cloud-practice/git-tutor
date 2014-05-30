@@ -1,0 +1,266 @@
+=== Asciidoc
+
+Please refer to the asciidoc user's guide: http://asciidoctor.org/docs/asciidoc-writers-guide/
+
+This cheat sheet is also very helpful: http://powerman.name/doc/asciidoc
+
+==== Setup on Linux
+
+. yum install git asciidoc docbook-xsl fop
+. Edit /etc/asciidoc/asciidoc.conf and change the following
++
+----
+iconsdir=./images/icons
+----
++
+To:
++
+----
+iconsdir=/etc/asciidoc/images/icons
+----
+
+==== Compiling ASCIIDOC documents
+* To create a single HTML document: asciidoc <text file>
+* To create HTML Slides: asciidoc --backend slidy <text file>
+* To create a PDF:  a2x -fpdf -dbook --fop --no-xmllint -v <asciidoc file>
+* To create an EPUB: a2x -fepub -dbook --no-xmllint -v <asciidoc file>
+
+==== Hello World
+Create a simple asciidoc document:
+
+hello_world.adoc
+----
+= My Document Title
+:data-uri:
+:icons:
+:toc2:
+:numbered:
+
+
+== Chapter 1
+some content
+
+== Chapter 2
+some more content
+----
+
+==== Automatic Compiling
+Use a Makefile to 
+
+Makefile
+----
+DOCS=hello_world.adoc
+
+all: $(DOCS) html pdf epub
+
+html: $(DOCS)
+	asciidoc -v bootcamp-labs.adoc
+
+pdf: $(DOCS)
+	a2x -fpdf -dbook --fop --no-xmllint -v hello_world.adoc
+
+epub: $(DOCS)
+	a2x -fepub -dbook --no-xmllint -v hello_world.adoc
+
+clean:
+	rm -f *.html *.pdf *.epub
+----
+
+
+Compile the doc
+----
+make clean && make
+----
+
+=== Git
+. create github account and associated red hat email
+. settings -> ssh keys -> add ssh keys 
+. paste public key (+ssh-key-gen+ if you need one)
+. Install git
++
+----
+yum -y install git
+----
++
+. Configure git
++
+----
+git config --global user.name "Your Name Comes Here"
+git config --global user.email you@yourdomain.example.com
+git config --global color.branch auto
+git config --global color.diff auto
+git config --global color.interactive auto
+git config --global color.status auto
+git config --global push.default simple
+----
++
+. Add this to your +~/.bashrc+ to provide branch detail when in a git repo
++
+----
+export PS1="[\u@\h \W\$(git branch 2> /dev/null | grep -e '\* ' | sed 's/^..\(.*\)/{\1}/')]\$ "
+----
+
+==== Fork a repo
+
+. Fork the repo in github (top right): https://github.com/RHEL-OSP-TigerTeam/practice-labs
+. Clone your forked repo. You can get the SSH url from your github repo page on the right side, it will be similar to:
++
+----
+git clone git@github.com:{YOUR_GITHUB_USERNAME_HERE}/practice-labs.git
+----
++
+. Change to the directory of the newly cloned repo
++
+----
+cd practice-labs
+----
++
+. Set your master branch to have a remote branch on your origin (your github fork)
++
+----
+git branch --set-upstream-to=origin/master master
+----
++
+. Set a remote of upstream to be the original project that was forked
++
+----
+git remote add upstream git@github.com:RHEL-OSP-TigerTeam/practice-labs.git
+----
+
+==== Git Workflow
+
+. Create a branch. A branch is a topic that contains a set of related changes 
++
+----
+git branch _branch_name_
+----
++
+. Check the branch out to begin working on it
++
+----
+git checkout _branch_name_
+----
+. Make changes. For this lab add your github username to the file "completed.lab"
++
+IMPORTANT: This must match EXACTLY to your github username as this file will be used to add access to the rest of the labs!
++
+. Test changes and verify
++
+----
+git diff
+----
++
+. Add files that will be committed
++
+----
+git add completed.lab <other_files>
+----
++
+. Commit changes
++
+----
+git commit
+----
++
+NOTE: The commit message should provide meaningful information and use the imperative, present tense: "change", not "changed" or "changes". Think of it in terms of completing the imperative statement "This commit will do the following if it is applied as a patch:"
++
+. It is good practice to pull the latest upstream to make sure there will be no merge conflicts. First fetch the latest upstream
++
+----
+git fetch upstream
+----
++
+. Rebase against the upstream master branch
++
+----
+git rebase upstream/master
+----
++
+. If there are no conflicts, push to a remote branch on your origin (your github fork)
++
+NOTE: If there are merge conflicts see below
++
+----
+git push --set-upstream origin <branch name>
+----
++
+. Push change to your remote branch (on your github fork)
++
+----
+git push
+----
++
+. Go to github.com and initiate a pull request
+
+==== Update your origin (fork)
+This is the same step recommended before a push, replicated here.
+
+. After a pull request is approved pull changes. First fetch the latest upstream
++
+----
+git fetch upstream
+----
++
+. Rebase against the upstream master branch
++
+----
+git rebase upstream/master
+----
+
+==== Resolving a Merge Conflict
+A merge conflict can occur for many reasons. Typically it is when you make a change to the same line that someone else changes but their change was merged first, so git can't automatically determine what to do. This is relatively easy but must be manually addressed.
+
+. If a rebase or merge results in a conflict, use a diff/merge tool such as _vimdiff_ or _gvimdiff_. If you do not have one installed do so
++
+----
+yum -y install vim-enhanced vim-X11
+----
++
+. Use +mergetool+ to bring up the conflicting files for inspection
++
+----
+git mergetool
+----
++
+. The display will be divided into 4 main areas
++
+.Merge Conflict Review Panes in {g,}vimdiff
+|==================================
+^|upstream version ^| common content  ^| branch version
+3+^.^|  unresolved conflicts
+|==================================
++
+.. Top left = upstream version of the file
+.. Top right = your branch version of the file
+.. Top middle = content between the two files that is the same
+.. Bottom = unresolved conflicts to handle
++
+. Make changes to the bottom pane and save and quit. With +vim+ or +gvim+ it is
++
+----
+:wqa
+----
++
+. Add modified file(s). In this case it would likely be
++
+----
+git add completed.lab
+----
++
+. Commit the change
++
+----
+git commit
+----
++
+. If the conflict was a result of a rebase conflict, continue the rebase and make sure everything merges
++
+----
+git rebase --continue
+----
++
+. Push the commit to your remote branch
++
+----
+git push
+----
