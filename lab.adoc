@@ -1,10 +1,20 @@
-=== Asciidoc
+// vim: set syntax=asciidoc:
+[[Team_Collaboration]]
+= Team Collaboration
+:data-uri:
+:icons:
+:toc:
+:toclevels 4:
+:numbered:
+:homepage https://github.com/cloud-practice/openstack-bootcamp:
+
+== Asciidoc Setup
 
 Please refer to the asciidoc user's guide: http://asciidoctor.org/docs/asciidoc-writers-guide/
 
 This cheat sheet is also very helpful: http://powerman.name/doc/asciidoc
 
-==== Setup on Linux
+=== Linux
 
 . yum install git asciidoc docbook-xsl fop
 . Edit /etc/asciidoc/asciidoc.conf and change the following
@@ -19,16 +29,123 @@ To:
 iconsdir=/etc/asciidoc/images/icons
 ----
 
-==== Compiling ASCIIDOC documents
-* To create a single HTML document: asciidoc <text file>
-* To create HTML Slides: asciidoc --backend slidy <text file>
-* To create a PDF:  a2x -fpdf -dbook --fop --no-xmllint -v <asciidoc file>
-* To create an EPUB: a2x -fepub -dbook --no-xmllint -v <asciidoc file>
+=== Mac OS X:
+Prerequisites Java JRE is required for fop. If not prompted for installation you can try this JRE: [Apple Support](http://support.apple.com/kb/DL1572?viewlocale=en_US)
 
-==== Hello World
+. Install Homebrew for Mac OS X: [Homebrew](http://brew.sh/)
++
+----
+ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+----
++
+. Install asciidoc: 
++
+----
+brew install asciidoc
+----
++
+. Install dblatex: [dblatext Mac OS X Install](https://gist.github.com/dustinschultz/6554087#comments)
+.. Install MacTex - [MacTex](http://tug.org/mactex/)
+.. Fix MacTeX Path Problem
++
+----
+awk '{ print $0":/usr/texbin"}' ~/.bash_profile > tmp && mv tmp ~/.bash_profile
+----
++
+.. Install dblatex
++
+----
+curl https://gist.githubusercontent.com/dustinschultz/6544364/raw/5bbe233fbe953b8070c5453fdf09cd65eb515e9e/dblatex.rb -o /usr/local/Library/Formula/dblatex.rb
+brew install dblatex
+----
++
+. Install additional required packages
++
+----
+brew install git
+brew install fop
+brew install docbook-xsl
+----
++
+. Add environment variable XML_CATALOG_FILES to point to /usr/local/etc/xml/catalog
++
+----
+echo export XML_CATALOG_FILES="/usr/local/etc/xml/catalog" >> ~/.bashrc
+source ~/.bashrc
+----
+
+=== Windows
+. Run *setup.exe* from [Cygwin](http://www.cygwin.com/)
+. Select the following packages: *asciidoc, dblatex, openssh, git, git-completion, git-gui, git-review, gitk, bash-completion, vim, vim-common, gvim*
+. Follow instructions from [Cygwin Ports](http://cygwinports.org/) which are summarized here:
+.. Run **cmd** and run the previously downloaded **setup-*.exe** with the following parameter: 
++
+----
+setup-x86.exe -K http://cygwinports.org/ports.gpg
+----
++
+.. Add the URL of:  ftp://ftp.cygwinports.org/pub/cygwinports
+.. Install **fop**
+. Run *Xwin Server* from the Start Menu under *Cygwin-X*
+. An icon should show up in the task bar. If it does not then run the following:
+.. Open *Cygwin Terminal* in the Start Menu under *Cygwin*
+.. In the Cygwin bash prompt run: 
++
+----
+/usr/bin/startxwin.exe 
+----
++
+. Add ssh-agent on startup to *~/.bash_profile*
++
+----
+SSHAGENT=/usr/bin/ssh-agent
+SSHAGENTARGS="-s"
+if [ -z "$SSH_AUTH_SOCK" -a -x "$SSHAGENT" ]; then
+  eval `$SSHAGENT $SSHAGENTARGS`
+  trap "kill $SSH_AGENT_PID" 0
+fi
+ssh-add 
+# Optional if needed:
+/usr/bin/startxwin.exe
+----
++
+NOTE: If SSH keys are being used, it may be necessary to change the group owner and permissions:
++
+----
+chgrp -Rv Users <location of private key>
+chown -v 0600 <location of private key>
+----
+
+== Asciidoc Compiling
+* To create a single HTML document: 
++
+----
+asciidoc <text file>
+----
++
+* To create HTML Slides:
++
+----
+asciidoc --backend slidy <text file>
+----
++
+* To create a PDF:
++
+----
+a2x -fpdf -dbook --fop --no-xmllint -v <asciidoc file>
+----
++
+* To create an EPUB:
++
+----
+a2x -fepub -dbook --no-xmllint -v <asciidoc file>
+----
+
+=== Hello World
 Create a simple asciidoc document:
 
-hello_world.adoc
+.hello_world.adoc
+****
 ----
 = My Document Title
 :data-uri:
@@ -36,16 +153,29 @@ hello_world.adoc
 :toc2:
 :numbered:
 
-
 == Chapter 1
 some content
 
 == Chapter 2
 some more content
-----
 
-==== Automatic Compiling
-Use a Makefile to 
+.Some Table
+|====
+^| Heading1 ^| Heading2
+| row1 column1 content |
+| | row2 column2 content
+|====
+
+.Some Figure
+image::screenshot.png[Screenshot Text]
+
+----
+****
+
+Take a screenshot of something and put it in the same directory as this .adoc and name it +screenshot.png+
+
+=== Automatic Compiling
+Use a Makefile to compile the asciidoc into HTML and PDF.
 
 Makefile
 ----
@@ -54,7 +184,7 @@ DOCS=hello_world.adoc
 all: $(DOCS) html pdf epub
 
 html: $(DOCS)
-	asciidoc -v bootcamp-labs.adoc
+	asciidoc -v hello_world.adoc
 
 pdf: $(DOCS)
 	a2x -fpdf -dbook --fop --no-xmllint -v hello_world.adoc
@@ -72,7 +202,7 @@ Compile the doc
 make clean && make
 ----
 
-=== Git
+== Git Setup
 . create github account and associated red hat email
 . settings -> ssh keys -> add ssh keys 
 . paste public key (+ssh-key-gen+ if you need one)
@@ -80,6 +210,12 @@ make clean && make
 +
 ----
 yum -y install git
+----
++
+Or:
++
+----
+brew install git
 ----
 +
 . Configure git
@@ -100,9 +236,11 @@ git config --global push.default simple
 export PS1="[\u@\h \W\$(git branch 2> /dev/null | grep -e '\* ' | sed 's/^..\(.*\)/{\1}/')]\$ "
 ----
 
-==== Fork a repo
+== Git Workflow
 
-. Fork the repo in github (top right): https://github.com/RHEL-OSP-TigerTeam/practice-labs
+=== Fork a repo
+
+. Fork the repo in github (top right): https://github.com/cloud-practice/practice-labs
 . Clone your forked repo. You can get the SSH url from your github repo page on the right side, it will be similar to:
 +
 ----
@@ -115,35 +253,32 @@ git clone git@github.com:{YOUR_GITHUB_USERNAME_HERE}/practice-labs.git
 cd practice-labs
 ----
 +
-. Set your master branch to have a remote branch on your origin (your github fork)
-+
-----
-git branch --set-upstream-to=origin/master master
-----
-+
 . Set a remote of upstream to be the original project that was forked
 +
 ----
-git remote add upstream git@github.com:RHEL-OSP-TigerTeam/practice-labs.git
+git remote add upstream git@github.com:cloud-practice/practice-labs.git
 ----
 
-==== Git Workflow
+=== Development Workflow
 
 . Create a branch. A branch is a topic that contains a set of related changes 
 +
 ----
-git branch _branch_name_
+git branch <YOUR_BRANCH_NAME>
 ----
 +
 . Check the branch out to begin working on it
 +
 ----
-git checkout _branch_name_
+git checkout <YOUR_BRANCH_NAME>
 ----
 . Make changes. For this lab add your github username to the file "completed.lab"
 +
 IMPORTANT: This must match EXACTLY to your github username as this file will be used to add access to the rest of the labs!
 +
+----
+echo "YOUR_GITHUB_USERNAME">> completed.lab
+----
 . Test changes and verify
 +
 ----
@@ -153,7 +288,7 @@ git diff
 . Add files that will be committed
 +
 ----
-git add completed.lab <other_files>
+git add completed.lab <OTHER_FILES>
 ----
 +
 . Commit changes
@@ -162,40 +297,61 @@ git add completed.lab <other_files>
 git commit
 ----
 +
-NOTE: The commit message should provide meaningful information and use the imperative, present tense: "change", not "changed" or "changes". Think of it in terms of completing the imperative statement "This commit will do the following if it is applied as a patch:"
+NOTE: The commit message should provide meaningful information and use the imperative, present tense: "change", not "changed" or "changes". Think of it in terms of completing the imperative statement "This commit will do the following if it is applied as a patch: __________". The commit message should fill in the blank. e.g. "fix compile errors in chapter 2".
 +
-. It is good practice to pull the latest upstream to make sure there will be no merge conflicts. First fetch the latest upstream
+. It is good practice to pull the latest upstream to make sure there will be no merge conflicts. Switch to your master branch:
 +
 ----
-git fetch upstream
+git checkout master
 ----
 +
-. Rebase against the upstream master branch
+. First fetch the latest upstream
++
+----
+git fetch upstream 
+----
++
+. Rebase or merge against the upstream master branch
 +
 ----
 git rebase upstream/master
+----
++
+or:
++
+----
+git merge upstream/master
 ----
 +
 . If there are no conflicts, push to a remote branch on your origin (your github fork)
 +
 NOTE: If there are merge conflicts see below
 +
+NOTE: You only have to set the upstream branch one time
++
 ----
 git push --set-upstream origin <branch name>
 ----
 +
-. Push change to your remote branch (on your github fork)
-+
-----
-git push
-----
-+
 . Go to github.com and initiate a pull request
++
+NOTE: Usually github will detect the change and offer a "Compare and Pull Request" button, but sometimes you may need to select the dropdown that is defaulted to "master" and change to the branch that was pushed and click on "pull request", or just initiate a new pull request from the menu on the right side.
 
 ==== Update your origin (fork)
 This is the same step recommended before a push, replicated here.
 
-. After a pull request is approved pull changes. First fetch the latest upstream
+. After a pull request is approved, pull changes. First change to your master branch
++
+----
+git checkout master
+----
++
+. Go to github.com and initiate a pull request
+
+=== Update your origin (fork)
+This is the same step recommended before a push, replicated here.
+
+. Fetch the latest upstream
 +
 ----
 git fetch upstream
@@ -206,15 +362,31 @@ git fetch upstream
 ----
 git rebase upstream/master
 ----
++
+. Now update your origin (github fork) with the latest change from upstream
++
+----
+git push
+----
 
-==== Resolving a Merge Conflict
+=== Resolving a Merge Conflict
 A merge conflict can occur for many reasons. Typically it is when you make a change to the same line that someone else changes but their change was merged first, so git can't automatically determine what to do. This is relatively easy but must be manually addressed.
 
 . If a rebase or merge results in a conflict, use a diff/merge tool such as _vimdiff_ or _gvimdiff_. If you do not have one installed do so
 +
+For Linux:
++
 ----
 yum -y install vim-enhanced vim-X11
 ----
++
+For Mac OS X:
++
+----
+brew install macvim
+----
++
+NOTE: You may need to install Xcode first.
 +
 . Use +mergetool+ to bring up the conflicting files for inspection
 +
