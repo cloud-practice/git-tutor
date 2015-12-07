@@ -32,7 +32,7 @@ iconsdir=/etc/asciidoc/images/icons
 ----
 
 === Mac OS X:
-Prerequisites Java JRE is required for fop. If not prompted for installation you can try this JRE: [Apple Support](http://support.apple.com/kb/DL1572?viewlocale=en_US)
+Prerequisites: Java JRE is required for fop. If not prompted for installation you can try this JRE: [Apple Support](http://support.apple.com/kb/DL1572?viewlocale=en_US)
 
 . Install Homebrew for Mac OS X: [Homebrew](http://brew.sh/)
 +
