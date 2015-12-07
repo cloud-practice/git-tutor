@@ -14,6 +14,8 @@ Please refer to the asciidoc user's guide: http://asciidoctor.org/docs/asciidoc-
 
 This cheat sheet is also very helpful: http://powerman.name/doc/asciidoc
 
+There's also a graphical editor for AsciiDOC available here: http://asciidocfx.com/
+
 === Linux
 
 . yum install git asciidoc docbook-xsl fop
