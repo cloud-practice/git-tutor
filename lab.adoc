@@ -1,6 +1,6 @@
 // vim: set syntax=asciidoc:
-[[Team_Collaboration]]
-= Team Collaboration
+[[git_tutor]]
+= Git Tutor
 :data-uri:
 :icons:
 :toc:
@@ -8,206 +8,11 @@
 :numbered:
 :homepage https://github.com/cloud-practice/openstack-bootcamp:
 
-== Asciidoc Setup
-
-Please refer to the asciidoc user's guide: http://asciidoctor.org/docs/asciidoc-writers-guide/
-
-This cheat sheet is also very helpful: http://powerman.name/doc/asciidoc
-
-There's also a graphical editor for AsciiDOC available here: http://asciidocfx.com/
-
-=== Linux
-
-. yum install git asciidoc docbook-xsl fop
-. Edit /etc/asciidoc/asciidoc.conf and change the following
-+
-----
-iconsdir=./images/icons
-----
-+
-To:
-+
-----
-iconsdir=/etc/asciidoc/images/icons
-----
-
-=== Mac OS X:
-Prerequisites: Java JRE is required for fop. If not prompted for installation you can try this JRE: [Apple Support](http://support.apple.com/kb/DL1572?viewlocale=en_US)
-
-. Install Homebrew for Mac OS X: [Homebrew](http://brew.sh/)
-+
-----
-ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
-----
-+
-. Install asciidoc: 
-+
-----
-brew install asciidoc
-----
-+
-. Install dblatex: [dblatext Mac OS X Install](https://gist.github.com/dustinschultz/6554087#comments)
-.. Install MacTex - [MacTex](http://tug.org/mactex/)
-.. Fix MacTeX Path Problem
-+
-----
-awk '{ print $0":/usr/texbin"}' ~/.bash_profile > tmp && mv tmp ~/.bash_profile
-----
-+
-.. Install dblatex
-+
-----
-curl https://gist.githubusercontent.com/dustinschultz/6544364/raw/5bbe233fbe953b8070c5453fdf09cd65eb515e9e/dblatex.rb -o /usr/local/Library/Formula/dblatex.rb
-brew install dblatex
-----
-+
-. Install additional required packages
-+
-----
-brew install git
-brew install fop
-brew install docbook-xsl
-----
-+
-. Add environment variable XML_CATALOG_FILES to point to /usr/local/etc/xml/catalog
-+
-----
-echo export XML_CATALOG_FILES="/usr/local/etc/xml/catalog" >> ~/.bashrc
-source ~/.bashrc
-----
-
-=== Windows
-. Run *setup.exe* from [Cygwin](http://www.cygwin.com/)
-. Select the following packages: *asciidoc, dblatex, openssh, git, git-completion, git-gui, git-review, gitk, bash-completion, vim, vim-common, gvim*
-. Follow instructions from [Cygwin Ports](http://cygwinports.org/) which are summarized here:
-.. Run **cmd** and run the previously downloaded **setup-*.exe** with the following parameter: 
-+
-----
-setup-x86.exe -K http://cygwinports.org/ports.gpg
-----
-+
-.. Add the URL of:  ftp://ftp.cygwinports.org/pub/cygwinports
-.. Install **fop**
-. Run *Xwin Server* from the Start Menu under *Cygwin-X*
-. An icon should show up in the task bar. If it does not then run the following:
-.. Open *Cygwin Terminal* in the Start Menu under *Cygwin*
-.. In the Cygwin bash prompt run: 
-+
-----
-/usr/bin/startxwin.exe 
-----
-+
-. Add ssh-agent on startup to *~/.bash_profile*
-+
-----
-SSHAGENT=/usr/bin/ssh-agent
-SSHAGENTARGS="-s"
-if [ -z "$SSH_AUTH_SOCK" -a -x "$SSHAGENT" ]; then
-  eval `$SSHAGENT $SSHAGENTARGS`
-  trap "kill $SSH_AGENT_PID" 0
-fi
-ssh-add 
-# Optional if needed:
-/usr/bin/startxwin.exe
-----
-+
-NOTE: If SSH keys are being used, it may be necessary to change the group owner and permissions:
-+
-----
-chgrp -Rv Users <location of private key>
-chown -v 0600 <location of private key>
-----
-
-== Asciidoc Compiling
-* To create a single HTML document: 
-+
-----
-asciidoc <text file>
-----
-+
-* To create HTML Slides:
-+
-----
-asciidoc --backend slidy <text file>
-----
-+
-* To create a PDF:
-+
-----
-a2x -fpdf -dbook --fop --no-xmllint -v <asciidoc file>
-----
-+
-* To create an EPUB:
-+
-----
-a2x -fepub -dbook --no-xmllint -v <asciidoc file>
-----
-
-=== Hello World
-Create a simple asciidoc document:
-
-.hello_world.adoc
-****
-----
-= My Document Title
-:data-uri:
-:icons:
-:toc2:
-:numbered:
-
-== Chapter 1
-some content
-
-== Chapter 2
-some more content
-
-.Some Table
-|====
-^| Heading1 ^| Heading2
-| row1 column1 content |
-| | row2 column2 content
-|====
-
-.Some Figure
-image::screenshot.png[Screenshot Text]
-
-----
-****
-
-Take a screenshot of something and put it in the same directory as this .adoc and name it +screenshot.png+
-
-=== Automatic Compiling
-Use a Makefile to compile the asciidoc into HTML and PDF.
-
-Makefile
-----
-DOCS=hello_world.adoc
-
-all: $(DOCS) html pdf epub
-
-html: $(DOCS)
-	asciidoc -v hello_world.adoc
-
-pdf: $(DOCS)
-	a2x -fpdf -dbook --fop --no-xmllint -v hello_world.adoc
-
-epub: $(DOCS)
-	a2x -fepub -dbook --no-xmllint -v hello_world.adoc
-
-clean:
-	rm -f *.html *.pdf *.epub
-----
-
-
-Compile the doc
-----
-make clean && make
-----
 
 == Git Setup
-. create github account and associated red hat email
-. settings -> ssh keys -> add ssh keys 
-. paste public key (+ssh-key-gen+ if you need one)
+. Create github account 
+. Add your SSH public key via *Settings -> SSH Keys -> Add SSH Keys*
+. Paste your public key (+ssh-key-gen+ if you need one)
 . Install git
 +
 ----
@@ -224,7 +29,7 @@ brew install git
 +
 ----
 git config --global user.name "Your Name Comes Here"
-git config --global user.email you@yourdomain.example.com
+git config --global user.email you@youremail.example.com
 git config --global color.branch auto
 git config --global color.diff auto
 git config --global color.interactive auto
@@ -240,25 +45,28 @@ export PS1="[\u@\h \W\$(git branch 2> /dev/null | grep -e '\* ' | sed 's/^..\(.*
 
 == Git Workflow
 
+.Git Workflow
+image::git-workflow.png[Git Workflow]
+
 === Fork a repo
 
-. Fork the repo in github (top right): https://github.com/cloud-practice/practice-labs
+. Fork the repo in github (top right): https://github.com/cloud-practice/git-tutor
 . Clone your forked repo. You can get the SSH url from your github repo page on the right side, it will be similar to:
 +
 ----
-git clone git@github.com:{YOUR_GITHUB_USERNAME_HERE}/practice-labs.git
+git clone git@github.com:{YOUR_GITHUB_USERNAME_HERE}/git-tutor.git
 ----
 +
 . Change to the directory of the newly cloned repo
 +
 ----
-cd practice-labs
+cd git-tutor
 ----
 +
 . Set a remote of upstream to be the original project that was forked
 +
 ----
-git remote add upstream git@github.com:cloud-practice/practice-labs.git
+git remote add upstream git@github.com:cloud-practice/git-tutor.git
 ----
 
 === Development Workflow
