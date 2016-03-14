@@ -6,7 +6,7 @@
 :toc:
 :toclevels 4:
 :numbered:
-:homepage https://github.com/cloud-practice/openstack-bootcamp:
+:homepage https://github.com/cloud-practice/:
 
 
 == Git Setup
@@ -45,8 +45,10 @@ export PS1="[\u@\h \W\$(git branch 2> /dev/null | grep -e '\* ' | sed 's/^..\(.*
 
 == Git Workflow
 
+The following diagram give a general sequence of steps that occur in a typical workflow.
+
 .Git Workflow
-image::git-workflow.png[Git Workflow]
+image::workflow.png[Git Workflow]
 
 === Fork a repo
 
