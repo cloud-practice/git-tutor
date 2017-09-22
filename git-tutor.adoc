@@ -13,13 +13,13 @@
 . Create github account 
 . Add your SSH public key via *Settings -> SSH Keys -> Add SSH Keys*
 . Paste your public key (+ssh-key-gen+ if you need one)
-. Install git
+. Install git on Linux:
 +
 ----
 yum -y install git
 ----
 +
-Or:
+Or for macOS:
 +
 ----
 brew install git
@@ -42,6 +42,12 @@ git config --global push.default simple
 ----
 export PS1="[\u@\h \W\$(git branch 2> /dev/null | grep -e '\* ' | sed 's/^..\(.*\)/{\1}/')]\$ "
 ----
++
+. Load your +~/.bashrc+ to enable the new prompt. This will only be active in a git directory (not yet).
++
+----
+source ~/.bashrc
+----
 
 == Git Workflow
 
@@ -59,21 +65,23 @@ image::workflow.png[Git Workflow]
 git clone git@github.com:{YOUR_GITHUB_USERNAME_HERE}/git-tutor.git
 ----
 +
-. Change to the directory of the newly cloned repo
+. Change to the directory of the newly cloned repo. You should now be in the directory for the local repository you cloned which should have `{master}` at the end of the prompt. This indicates you are in a git repo and are in the `master` branch. Note that this is your `local` master branch.
 +
 ----
 cd git-tutor
 ----
 +
-. Set a remote of upstream to be the original project that was forked
+. Add a remote called `upstream` to point to the original repository that was forked. A remote is simply any other repository that contains the same - or modified versions of - the same repository. In this case we are added the upstream repo since we don't have write access to it. We will make changes to our fork and notifiy upstream of our changes. This is called a +Pull Request+ and will be discussed later.
 +
 ----
 git remote add upstream git@github.com:cloud-practice/git-tutor.git
 ----
++
+NOTE: The remote name of `upstream` can be any name you like, but is the a common nommenclature. However, you can also add other remotes for colleagues working on the same repository in case you need to send a pull request to them.
 
 === Development Workflow
 
-. Create a branch. A branch is a topic that contains a set of related changes 
+. Create a branch. A branch is essentially copy of `master` that contains a set of related changes to the original code. Think of a branch as very quick and easy way to test some changes out. If it works, great - you can submit a pull request. If not, just abandon it and return to `master` which will be untouched. With this in mind, branches should be used extremly generously. It is better to use branches more often than not. It is best practice to leave `master` untouched and instead experiment in branches.
 +
 ----
 git branch <YOUR_BRANCH_NAME>
@@ -84,13 +92,19 @@ git branch <YOUR_BRANCH_NAME>
 ----
 git checkout <YOUR_BRANCH_NAME>
 ----
-. Make changes. For this lab add your github username to the file "completed.lab"
 +
-IMPORTANT: This must match EXACTLY to your github username as this file will be used to add access to the rest of the labs!
+. Make changes. For this lab add your github username to the file "completed.lab"
 +
 ----
 echo "YOUR_GITHUB_USERNAME">> completed.lab
 ----
++
+. Check what files were modified
++
+----
+git status
+----
++
 . Test changes and verify
 +
 ----
@@ -100,7 +114,7 @@ git diff
 . Add files that will be committed
 +
 ----
-git add completed.lab <OTHER_FILES>
+git add completed.lab
 ----
 +
 . Commit changes
@@ -111,74 +125,43 @@ git commit
 +
 NOTE: The commit message should provide meaningful information and use the imperative, present tense: "change", not "changed" or "changes". Think of it in terms of completing the imperative statement "This commit will do the following if it is applied as a patch: __________". The commit message should fill in the blank. e.g. "fix compile errors in chapter 2".
 +
-. It is good practice to pull the latest upstream to make sure there will be no merge conflicts. Switch to your master branch:
+. It is good practice to pull the latest upstream to make sure there will be no merge conflicts. This command tells git to fetch the latest code from upstream from the branch master into your current branch.
 +
 ----
-git checkout master
-----
-+
-. First fetch the latest upstream
-+
-----
-git fetch upstream 
-----
-+
-. Rebase or merge against the upstream master branch
-+
-----
-git rebase upstream/master
-----
-+
-or:
-+
-----
-git merge upstream/master
+git pull --rebase upstream master
 ----
 +
 . If there are no conflicts, push to a remote branch on your origin (your github fork)
 +
 NOTE: If there are merge conflicts see below
 +
-NOTE: You only have to set the upstream branch one time
-+
 ----
-git push --set-upstream origin <branch name>
+git push origin <branch name>
 ----
 +
 . Go to github.com and initiate a pull request
 +
 NOTE: Usually github will detect the change and offer a "Compare and Pull Request" button, but sometimes you may need to select the dropdown that is defaulted to "master" and change to the branch that was pushed and click on "pull request", or just initiate a new pull request from the menu on the right side.
 
-==== Update your origin (fork)
-This is the same step recommended before a push, replicated here.
+=== Update your origin (fork)
+This is the same step recommended before a push, replicated here for master
 
-. After a pull request is approved, pull changes. First change to your master branch
+. Change to your local master branch
 +
 ----
 git checkout master
 ----
 +
-. Go to github.com and initiate a pull request
-
-=== Update your origin (fork)
-This is the same step recommended before a push, replicated here.
-
-. Fetch the latest upstream
+. Update your master branch
 +
 ----
-git fetch upstream
-----
-+
-. Rebase against the upstream master branch
-+
-----
-git rebase upstream/master
+git pull --rebase upstream master
 ----
 +
 . Now update your origin (github fork) with the latest change from upstream
 +
 ----
-git push
+git push origin master
 ----
 
 === Resolving a Merge Conflict
@@ -192,7 +175,7 @@ For Linux:
 yum -y install vim-enhanced vim-X11
 ----
 +
-For Mac OS X:
+For macOS:
 +
 ----
 brew install macvim
@@ -246,5 +229,5 @@ git rebase --continue
 . Push the commit to your remote branch
 +
 ----
-git push
+git push origin <YOUR_BRANCH_NAME>
 ----
